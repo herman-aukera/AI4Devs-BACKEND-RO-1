@@ -314,3 +314,4 @@ POST http://localhost:3010/candidates
 }
 ```
 
+# Test push without password

@@ -1,10 +1,14 @@
-import { Request, Response, NextFunction } from 'express';
-import express from 'express';
-import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
-import candidateRoutes from './routes/candidateRoutes';
-import { uploadFile } from './application/services/fileUploadService';
+
+// Load environment variables first
+dotenv.config();
+
+import { PrismaClient } from '@prisma/client';
 import cors from 'cors';
+import express, { NextFunction, Request, Response } from 'express';
+import { uploadFile } from './application/services/fileUploadService';
+import candidateRoutes from './routes/candidateRoutes';
+import kanbanRoutes from './routes/kanbanRoutes';
 
 // Extender la interfaz Request para incluir prisma
 declare global {
@@ -14,8 +18,6 @@ declare global {
     }
   }
 }
-
-dotenv.config();
 const prisma = new PrismaClient();
 
 export const app = express();
@@ -36,6 +38,9 @@ app.use(cors({
   credentials: true
 }));
 
+// Import and use kanban routes first (more specific routes should come before generic ones)
+app.use('/', kanbanRoutes);
+
 // Import and use candidateRoutes
 app.use('/candidates', candidateRoutes);
 
@@ -55,7 +60,7 @@ app.get('/', (req, res) => {
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
-  res.type('text/plain'); 
+  res.type('text/plain');
   res.status(500).send('Something broke!');
 });
 
