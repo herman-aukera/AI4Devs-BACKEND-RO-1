@@ -1,6 +1,10 @@
+import dotenv from 'dotenv';
+
+// Load environment variables first
+dotenv.config();
+
 import { PrismaClient } from '@prisma/client';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import express, { NextFunction, Request, Response } from 'express';
 import { uploadFile } from './application/services/fileUploadService';
 import candidateRoutes from './routes/candidateRoutes';
@@ -14,8 +18,6 @@ declare global {
     }
   }
 }
-
-dotenv.config();
 const prisma = new PrismaClient();
 
 export const app = express();
