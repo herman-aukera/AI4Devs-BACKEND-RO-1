@@ -103,6 +103,17 @@ describe('KanbanService', () => {
       expect(result.candidates).toHaveLength(0);
     });
 
+    test('should throw PositionNotFoundError when position does not exist', async () => {
+      // Arrange
+      const positionId = 999;
+      mockPrisma.application.findMany.mockResolvedValue([]);
+      mockPrisma.interview.groupBy.mockResolvedValue([]);
+      mockPrisma.position.findUnique.mockResolvedValue(null); // Position not found
+
+      // Act & Assert
+      await expect(getPositionCandidates(positionId)).rejects.toThrow('Position not found: 999');
+    });
+
     test('should handle candidates with no interview scores', async () => {
       // Arrange
       const positionId = 1;

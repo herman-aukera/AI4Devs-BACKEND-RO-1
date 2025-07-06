@@ -162,6 +162,18 @@ describe('Kanban Controllers Integration Tests', () => {
       expect(response.body.error).toBe('Stage cannot be empty');
     });
 
+    test('should return 400 for non-string stage value', async () => {
+      // Act
+      const response = await request(app)
+        .put('/candidates/1/stage')
+        .send({ stage: 123 }) // Sending a number instead of string
+        .expect(400);
+
+      // Assert
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toBe('Stage must be a string');
+    });
+
     test('should return 404 when service throws candidate not found error', async () => {
       // Arrange
       const candidateId = 999;
