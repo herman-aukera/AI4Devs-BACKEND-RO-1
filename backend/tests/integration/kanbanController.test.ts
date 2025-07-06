@@ -1,6 +1,7 @@
 import request from 'supertest';
 import * as kanbanService from '../../src/application/services/kanbanService';
 import { app } from '../../src/index';
+import { CandidateNotFoundError, InvalidStageNameError, PositionNotFoundError } from '../../src/types/errors';
 
 // Mock the kanban service
 jest.mock('../../src/application/services/kanbanService');
@@ -58,7 +59,7 @@ describe('Kanban Controllers Integration Tests', () => {
     test('should return 404 when service throws error', async () => {
       // Arrange
       const positionId = 999;
-      mockKanbanService.getPositionCandidates.mockRejectedValue(new Error('Position not found'));
+      mockKanbanService.getPositionCandidates.mockRejectedValue(new PositionNotFoundError(positionId));
 
       // Act
       const response = await request(app)
@@ -82,6 +83,22 @@ describe('Kanban Controllers Integration Tests', () => {
 
       // Assert
       expect(response.body.candidates).toHaveLength(0);
+    });
+
+    test('should return 500 for unexpected service errors', async () => {
+      // Arrange
+      const positionId = 1;
+      // Simulate unexpected non-Error object
+      mockKanbanService.getPositionCandidates.mockRejectedValue('Unexpected error');
+
+      // Act
+      const response = await request(app)
+        .get(`/positions/${positionId}/candidates`)
+        .expect(500);
+
+      // Assert
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toBe('Internal server error');
     });
   });
 
@@ -149,7 +166,7 @@ describe('Kanban Controllers Integration Tests', () => {
       // Arrange
       const candidateId = 999;
       const requestBody = { stage: 'Technical Interview' };
-      mockKanbanService.updateCandidateStage.mockRejectedValue(new Error('Candidate application not found'));
+      mockKanbanService.updateCandidateStage.mockRejectedValue(new CandidateNotFoundError(candidateId));
 
       // Act
       const response = await request(app)
@@ -165,7 +182,7 @@ describe('Kanban Controllers Integration Tests', () => {
       // Arrange
       const candidateId = 1;
       const requestBody = { stage: 'Invalid Stage' };
-      mockKanbanService.updateCandidateStage.mockRejectedValue(new Error('Invalid stage name'));
+      mockKanbanService.updateCandidateStage.mockRejectedValue(new InvalidStageNameError('Invalid Stage'));
 
       // Act
       const response = await request(app)
@@ -175,6 +192,24 @@ describe('Kanban Controllers Integration Tests', () => {
 
       // Assert
       expect(response.body).toHaveProperty('error');
+    });
+
+    test('should return 500 for unexpected service errors', async () => {
+      // Arrange
+      const candidateId = 1;
+      const requestBody = { stage: 'Technical Interview' };
+      // Simulate unexpected non-Error object
+      mockKanbanService.updateCandidateStage.mockRejectedValue('Unexpected error');
+
+      // Act
+      const response = await request(app)
+        .put(`/candidates/${candidateId}/stage`)
+        .send(requestBody)
+        .expect(500);
+
+      // Assert
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toBe('Internal server error');
     });
   });
 });

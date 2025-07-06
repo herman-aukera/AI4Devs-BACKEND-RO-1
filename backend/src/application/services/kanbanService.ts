@@ -1,5 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import {
+  CandidateNotFoundError,
+  InvalidCandidateIdError,
+  InvalidPositionIdError,
+  InvalidStageNameError,
+  KanbanError,
+  PositionNotFoundError
+} from '../../types/errors';
+import {
   CandidateKanbanData,
   PositionCandidatesResponse,
   UpdateCandidateStageResponse
@@ -15,7 +23,7 @@ export const createKanbanService = (prismaClient: PrismaClient) => {
   const getPositionCandidates = async (positionId: number): Promise<PositionCandidatesResponse> => {
     // Validate input
     if (!positionId || positionId <= 0) {
-      throw new Error('Invalid position ID');
+      throw new InvalidPositionIdError(positionId);
     }
 
     try {
@@ -39,6 +47,17 @@ export const createKanbanService = (prismaClient: PrismaClient) => {
           },
         },
       });
+
+      // If no applications found, verify the position exists
+      if (applications.length === 0) {
+        const position = await prismaClient.position.findUnique({
+          where: { id: positionId },
+        });
+
+        if (!position) {
+          throw new PositionNotFoundError(positionId);
+        }
+      }
 
       // Compute average scores for each application directly in the database
       const averageScores = await prismaClient.interview.groupBy({
@@ -72,6 +91,13 @@ export const createKanbanService = (prismaClient: PrismaClient) => {
       };
     } catch (error) {
       console.error('Error fetching position candidates:', error);
+
+      // Re-throw custom errors
+      if (error instanceof KanbanError) {
+        throw error;
+      }
+
+      // Wrap unexpected errors
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(`Failed to retrieve candidates for position: ${errorMessage}`);
     }
@@ -89,11 +115,11 @@ export const createKanbanService = (prismaClient: PrismaClient) => {
   ): Promise<UpdateCandidateStageResponse> => {
     // Validate inputs
     if (!candidateId || candidateId <= 0) {
-      throw new Error('Invalid candidate ID');
+      throw new InvalidCandidateIdError(candidateId);
     }
 
     if (!newStage || newStage.trim() === '') {
-      throw new Error('Invalid stage name');
+      throw new InvalidStageNameError(newStage);
     }
 
     try {
@@ -105,7 +131,7 @@ export const createKanbanService = (prismaClient: PrismaClient) => {
       });
 
       if (!interviewStep) {
-        throw new Error('Invalid stage name');
+        throw new InvalidStageNameError(newStage.trim());
       }
 
       // Update the candidate's current interview step
@@ -119,7 +145,7 @@ export const createKanbanService = (prismaClient: PrismaClient) => {
       });
 
       if (updatedApplication.count === 0) {
-        throw new Error('Candidate application not found');
+        throw new CandidateNotFoundError(candidateId);
       }
 
       return {
@@ -129,9 +155,13 @@ export const createKanbanService = (prismaClient: PrismaClient) => {
       };
     } catch (error) {
       console.error('Error updating candidate stage:', error);
-      if (error instanceof Error) {
+
+      // Re-throw custom errors
+      if (error instanceof KanbanError) {
         throw error;
       }
+
+      // Wrap unexpected errors
       throw new Error('Failed to update candidate stage: Unknown error');
     }
   };

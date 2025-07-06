@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import { getPositionCandidates, updateCandidateStage } from '../../application/services/kanbanService';
+import {
+  isKanbanError
+} from '../../types/errors';
 
 /**
  * Controller for GET /positions/:id/candidates
@@ -21,13 +24,16 @@ export const getPositionCandidatesController = async (req: Request, res: Respons
   } catch (error) {
     console.error('Error in getPositionCandidatesController:', error);
 
-    if (error instanceof Error) {
-      if (error.message.includes('Invalid position ID')) {
-        res.status(400).json({ error: error.message });
-      } else if (error.message.includes('not found')) {
-        res.status(404).json({ error: error.message });
-      } else {
-        res.status(500).json({ error: 'Internal server error' });
+    if (isKanbanError(error)) {
+      switch (error.code) {
+        case 'INVALID_POSITION_ID':
+          res.status(400).json({ error: error.message });
+          break;
+        case 'POSITION_NOT_FOUND':
+          res.status(404).json({ error: error.message });
+          break;
+        default:
+          res.status(500).json({ error: 'Internal server error' });
       }
     } else {
       res.status(500).json({ error: 'Internal server error' });
@@ -72,13 +78,17 @@ export const updateCandidateStageController = async (req: Request, res: Response
   } catch (error) {
     console.error('Error in updateCandidateStageController:', error);
 
-    if (error instanceof Error) {
-      if (error.message.includes('Invalid candidate ID') || error.message.includes('Invalid stage name')) {
-        res.status(400).json({ error: error.message });
-      } else if (error.message.includes('not found')) {
-        res.status(404).json({ error: error.message });
-      } else {
-        res.status(500).json({ error: 'Internal server error' });
+    if (isKanbanError(error)) {
+      switch (error.code) {
+        case 'INVALID_CANDIDATE_ID':
+        case 'INVALID_STAGE_NAME':
+          res.status(400).json({ error: error.message });
+          break;
+        case 'CANDIDATE_NOT_FOUND':
+          res.status(404).json({ error: error.message });
+          break;
+        default:
+          res.status(500).json({ error: 'Internal server error' });
       }
     } else {
       res.status(500).json({ error: 'Internal server error' });

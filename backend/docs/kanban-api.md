@@ -86,7 +86,7 @@
  * }
  *
  * @apiError (400) InvalidCandidateID Candidate ID is invalid or not a number
- * @apiError (400) InvalidStage Stage name is invalid, empty, or doesn't exist
+ * @apiError (400) InvalidStageName Stage name is invalid, empty, or doesn't exist
  * @apiError (400) MissingStage Stage field is missing from request body
  * @apiError (404) CandidateNotFound Candidate application was not found
  * @apiError (500) InternalServerError Unexpected server error

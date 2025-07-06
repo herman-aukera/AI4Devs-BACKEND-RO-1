@@ -14,6 +14,9 @@ const mockPrisma = {
   interviewStep: {
     findFirst: jest.fn(),
   },
+  position: {
+    findUnique: jest.fn(),
+  },
 } as any;
 
 const kanbanService = createKanbanService(mockPrisma);
@@ -87,6 +90,11 @@ describe('KanbanService', () => {
       const positionId = 999;
       mockPrisma.application.findMany.mockResolvedValue([]);
       mockPrisma.interview.groupBy.mockResolvedValue([]);
+      mockPrisma.position.findUnique.mockResolvedValue({
+        id: positionId,
+        title: 'Test Position',
+        // ... other position fields
+      } as any);
 
       // Act
       const result = await getPositionCandidates(positionId);
