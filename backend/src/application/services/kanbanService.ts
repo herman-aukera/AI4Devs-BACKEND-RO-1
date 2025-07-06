@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
-import { 
-  CandidateKanbanData, 
-  PositionCandidatesResponse, 
-  UpdateCandidateStageResponse 
+import {
+  CandidateKanbanData,
+  PositionCandidatesResponse,
+  UpdateCandidateStageResponse
 } from '../../types/kanban';
 
 // Export for dependency injection in tests
@@ -40,28 +40,46 @@ export const createKanbanService = (prismaClient: PrismaClient) => {
         },
       });
 
-      // Calculate average scores for each candidate
-      const candidatesWithScores: CandidateKanbanData[] = await Promise.all(
-        applications.map(async (application) => {
-          const scoreAggregate = await prismaClient.interview.aggregate({
-            where: {
-              application: {
-                candidateId: application.candidateId,
-              },
-            },
-            _avg: {
-              score: true,
-            },
-          });
+      // Get all interviews for this position in a single query to avoid N+1
+      const interviews = await prismaClient.interview.findMany({
+        where: {
+          application: {
+            positionId: positionId,
+          },
+        },
+        select: {
+          applicationId: true,
+          score: true,
+        },
+      });
 
-          return {
-            id: application.candidate.id,
-            fullName: `${application.candidate.firstName} ${application.candidate.lastName}`,
-            currentInterviewStep: application.interviewStep.name,
-            averageScore: scoreAggregate._avg.score ?? 0,
-          };
-        })
-      );
+      // Calculate average scores for each application
+      const scoreMap: Record<number, number> = {};
+      const scoresByApplication: Record<number, number[]> = {};
+
+      // Group scores by application
+      interviews.forEach((interview) => {
+        if (interview.score !== null) {
+          if (!scoresByApplication[interview.applicationId]) {
+            scoresByApplication[interview.applicationId] = [];
+          }
+          scoresByApplication[interview.applicationId].push(interview.score);
+        }
+      });
+
+      // Calculate averages
+      Object.entries(scoresByApplication).forEach(([applicationId, scores]) => {
+        const avg = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+        scoreMap[parseInt(applicationId)] = Math.round(avg * 100) / 100; // Round to 2 decimals
+      });
+
+      // Map candidates with their scores
+      const candidatesWithScores: CandidateKanbanData[] = applications.map((application) => ({
+        id: application.candidate.id,
+        fullName: `${application.candidate.firstName} ${application.candidate.lastName}`,
+        currentInterviewStep: application.interviewStep.name,
+        averageScore: scoreMap[application.id] || 0,
+      }));
 
       return {
         candidates: candidatesWithScores,
@@ -79,7 +97,7 @@ export const createKanbanService = (prismaClient: PrismaClient) => {
    * @returns Promise<UpdateCandidateStageResponse> - Success status and updated info
    */
   const updateCandidateStage = async (
-    candidateId: number, 
+    candidateId: number,
     newStage: string
   ): Promise<UpdateCandidateStageResponse> => {
     // Validate inputs
