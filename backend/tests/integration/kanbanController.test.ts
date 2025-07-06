@@ -68,6 +68,7 @@ describe('Kanban Controllers Integration Tests', () => {
 
       // Assert
       expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toBe('Position not found: 999');
     });
 
     test('should return empty candidates array for position with no applications', async () => {
@@ -188,6 +189,7 @@ describe('Kanban Controllers Integration Tests', () => {
 
       // Assert
       expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toBe('Candidate application not found: 999');
     });
 
     test('should return 400 when service throws invalid stage error', async () => {
@@ -204,6 +206,7 @@ describe('Kanban Controllers Integration Tests', () => {
 
       // Assert
       expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toBe('Invalid stage name: Invalid Stage');
     });
 
     test('should return 500 for unexpected service errors', async () => {
