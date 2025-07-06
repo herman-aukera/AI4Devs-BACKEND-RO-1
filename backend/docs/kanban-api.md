@@ -40,8 +40,9 @@
  * }
  *
  * @apiError (400) InvalidPositionID Position ID is invalid or not a number
- * @apiError (404) PositionNotFound Position with given ID was not found
  * @apiError (500) InternalServerError Unexpected server error
+ *
+ * @apiNote For positions with no applications, the endpoint returns an empty candidates array with status 200.
  *
  * @apiErrorExample {json} Invalid Position ID:
  * HTTP/1.1 400 Bad Request

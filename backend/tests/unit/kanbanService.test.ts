@@ -9,6 +9,7 @@ const mockPrisma = {
   interview: {
     aggregate: jest.fn(),
     findMany: jest.fn(),
+    groupBy: jest.fn(),
   },
   interviewStep: {
     findFirst: jest.fn(),
@@ -54,15 +55,13 @@ describe('KanbanService', () => {
         },
       ];
 
-      const mockScoreData = [
-        { applicationId: 1, score: 90 },
-        { applicationId: 1, score: 81 }, // avg: 85.5
-        { applicationId: 2, score: 92 },
-        { applicationId: 2, score: 92 }, // avg: 92.0
+      const mockScoreAggregates = [
+        { applicationId: 1, _avg: { score: 85.5 } },
+        { applicationId: 2, _avg: { score: 92.0 } },
       ];
 
       mockPrisma.application.findMany.mockResolvedValue(mockApplications);
-      mockPrisma.interview.findMany.mockResolvedValue(mockScoreData);
+      mockPrisma.interview.groupBy.mockResolvedValue(mockScoreAggregates);
 
       // Act
       const result = await getPositionCandidates(positionId);
@@ -87,7 +86,7 @@ describe('KanbanService', () => {
       // Arrange
       const positionId = 999;
       mockPrisma.application.findMany.mockResolvedValue([]);
-      mockPrisma.interview.findMany.mockResolvedValue([]);
+      mockPrisma.interview.groupBy.mockResolvedValue([]);
 
       // Act
       const result = await getPositionCandidates(positionId);
@@ -115,7 +114,7 @@ describe('KanbanService', () => {
       ];
 
       mockPrisma.application.findMany.mockResolvedValue(mockApplications);
-      mockPrisma.interview.findMany.mockResolvedValue([]); // No interviews/scores
+      mockPrisma.interview.groupBy.mockResolvedValue([]); // No interview scores
 
       // Act
       const result = await getPositionCandidates(positionId);

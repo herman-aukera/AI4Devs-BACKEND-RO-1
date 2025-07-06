@@ -40,37 +40,23 @@ export const createKanbanService = (prismaClient: PrismaClient) => {
         },
       });
 
-      // Get all interviews for this position in a single query to avoid N+1
-      const interviews = await prismaClient.interview.findMany({
+      // Compute average scores for each application directly in the database
+      const averageScores = await prismaClient.interview.groupBy({
+        by: ['applicationId'],
         where: {
           application: {
             positionId: positionId,
           },
         },
-        select: {
-          applicationId: true,
+        _avg: {
           score: true,
         },
       });
 
-      // Calculate average scores for each application
+      // Map average scores to application IDs
       const scoreMap: Record<number, number> = {};
-      const scoresByApplication: Record<number, number[]> = {};
-
-      // Group scores by application
-      interviews.forEach((interview) => {
-        if (interview.score !== null) {
-          if (!scoresByApplication[interview.applicationId]) {
-            scoresByApplication[interview.applicationId] = [];
-          }
-          scoresByApplication[interview.applicationId].push(interview.score);
-        }
-      });
-
-      // Calculate averages
-      Object.entries(scoresByApplication).forEach(([applicationId, scores]) => {
-        const avg = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-        scoreMap[parseInt(applicationId)] = Math.round(avg * 100) / 100; // Round to 2 decimals
+      averageScores.forEach((entry) => {
+        scoreMap[entry.applicationId] = Math.round((entry._avg.score ?? 0) * 100) / 100; // Round to 2 decimals
       });
 
       // Map candidates with their scores
@@ -86,7 +72,8 @@ export const createKanbanService = (prismaClient: PrismaClient) => {
       };
     } catch (error) {
       console.error('Error fetching position candidates:', error);
-      throw new Error('Failed to retrieve candidates for position');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to retrieve candidates for position: ${errorMessage}`);
     }
   };
 
@@ -145,7 +132,7 @@ export const createKanbanService = (prismaClient: PrismaClient) => {
       if (error instanceof Error) {
         throw error;
       }
-      throw new Error('Failed to update candidate stage');
+      throw new Error('Failed to update candidate stage: Unknown error');
     }
   };
 
