@@ -38,11 +38,11 @@ app.use(cors({
   credentials: true
 }));
 
+// Import and use kanban routes first (more specific routes should come before generic ones)
+app.use('/', kanbanRoutes);
+
 // Import and use candidateRoutes
 app.use('/candidates', candidateRoutes);
-
-// Import and use kanban routes (without prefix for specific paths)
-app.use('/', kanbanRoutes);
 
 // Route for file uploads
 app.post('/upload', uploadFile);
