@@ -7,6 +7,7 @@ import { PrismaClient } from '@prisma/client';
 import cors from 'cors';
 import express, { NextFunction, Request, Response } from 'express';
 import { uploadFile } from './application/services/fileUploadService';
+import { applySecurity } from './middleware/security';
 import candidateRoutes from './routes/candidateRoutes';
 import kanbanRoutes from './routes/kanbanRoutes';
 
@@ -38,6 +39,9 @@ app.use(cors({
   credentials: true
 }));
 
+// Apply comprehensive security middleware stack
+app.use(applySecurity);
+
 // Import and use kanban routes first (more specific routes should come before generic ones)
 app.use('/', kanbanRoutes);
 
@@ -64,6 +68,9 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.status(500).send('Something broke!');
 });
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+// Only start server if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+  });
+}

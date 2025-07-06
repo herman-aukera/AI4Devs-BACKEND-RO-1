@@ -101,7 +101,7 @@ To access the PostgreSQL database, you can use any PostgreSQL client with the fo
 - User: postgres
 - Password: password
 - Database: mydatabase
-  
+
 Please replace User, Password, and Database with the actual username, password, and database name specified in your .env file.
 
 To stop the Docker container, run the following command:
@@ -313,5 +313,3 @@ POST http://localhost:3010/candidates
     }
 }
 ```
-
-# Test push without password
