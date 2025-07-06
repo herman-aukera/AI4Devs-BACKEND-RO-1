@@ -317,6 +317,21 @@ export const goodTestData = {
       phone: '+34-123-456-789',
       resumeContent: 'Desarrolladora full-stack con experiencia en aplicaciones web...',
       skills: ['Python', 'Django', 'JavaScript', 'PostgreSQL']
+    },
+    // Edge cases that should still be valid
+    {
+      fullName: 'José García-Müller', // Unicode characters
+      email: 'jose@example.com',
+      phone: '',
+      resumeContent: 'Text with symbols: @#$%^&*()',
+      skills: []
+    },
+    {
+      fullName: '', // Empty name edge case
+      email: 'empty@example.com',
+      phone: '+1-555-000-0000',
+      resumeContent: 'A'.repeat(1000), // Large but acceptable content
+      skills: Array(20).fill('skill') // Medium array size
     }
   ],
   positions: [
@@ -333,6 +348,14 @@ export const goodTestData = {
       requirements: ['React expertise', 'CSS/SCSS skills', 'Responsive design'],
       location: 'Remote',
       salary: '$80,000 - $120,000'
+    },
+    // Edge cases
+    {
+      title: 'Développeur Full-Stack', // Unicode title
+      description: 'Price: €50,000 - €70,000 (with benefits!)', // Special characters
+      requirements: [],
+      location: 'Paris, France',
+      salary: 'Competitive'
     }
   ],
   interviewStages: [
@@ -342,6 +365,16 @@ export const goodTestData = {
     'Cultural Fit',
     'Final Round',
     'Offer Extended'
+  ],
+  // Corner cases for valid data
+  cornerCases: [
+    { text: '' }, // Empty string
+    { number: 0 }, // Zero value
+    { array: [] }, // Empty array
+    { nested: { valid: true } }, // Simple nesting
+    { unicode: '🚀 Emoji test 🎉' }, // Emoji content
+    { html: '&lt;safe&gt; HTML entities' }, // Properly encoded HTML
+    { mixed: 'Text with numbers 123 and safe symbols: @#$%' }
   ]
 };
 
