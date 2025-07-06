@@ -1,9 +1,16 @@
 # Prompts Utilizados - Desarrollo de Endpoints Kanban LTI
 
-## Prompt Principal Utilizado
+## 📋 Índice de Prompts
+1. [Prompt Principal de Implementación TDD](#prompt-principal-de-implementación-tdd)
+2. [Prompt de Verificación Sistemática](#prompt-de-verificación-sistemática)
+3. [Prompt Final de Validación y PR](#prompt-final-de-validación-y-pr)
 
-### Prompt Inicial
-```
+---
+
+## 🎯 Prompt Principal de Implementación TDD
+
+### Prompt Utilizado para Construcción Completa
+```markdown
 # 🎯 Elite Backend Engineering: LTI Kanban Endpoints with TDD & Clean Architecture
 
 ## 🧠 Chain-of-Thought Framework
@@ -216,130 +223,85 @@ Follow this exact pattern for any backend endpoint development:
 **Ready to execute? Start with codebase analysis and schema examination, then proceed with TDD implementation.**
 ```
 
-## Proceso de Desarrollo Chain-of-Thought
+---
 
-### 1. Análisis del Schema de Base de Datos
-```
-Primero analicé el schema de Prisma para entender:
-- Relación Position → Application → Candidate
-- Application.currentInterviewStep referencia InterviewStep.id
-- Interview table contiene score para calcular promedios
-- Necesito hacer joins entre Position → Application → Candidate para lista de candidatos
-- Para el score promedio: Application → Interview y agregación
-```
+## 🔍 Prompt de Verificación Sistemática
 
-### 2. Planificación de Arquitectura
-```
-Basándome en clean architecture, estructuré las capas como:
-- Service layer maneja lógica de negocio para retrieval y updates
-- Controller layer maneja formateo de HTTP request/response
-- Route layer define los paths de endpoints
-- Domain models proporcionan type safety
-```
+### Prompt para Validación Completa de Assignment
+```markdown
+# 🎯 LTI Kanban Endpoints Assignment Verification Prompt
 
-### 3. Diseño de Estrategia de Testing
+## Mission Statement
+**Execute comprehensive validation to confirm the LTI kanban endpoints assignment is 100% complete, functional, and meets all requirements. Use Chain-of-Thought reasoning for every verification step.**
+
+---
+
+## 🧠 Chain-of-Thought Verification Framework
+
+**Apply systematic reasoning at each step. Think step-by-step, validate assumptions, and provide evidence for every conclusion.**
+
+### Phase 1: Assignment Requirements Analysis
 ```
-Empecé con unit tests para funciones de servicio con Prisma mockeado
-Tests de integración verifican controladores
-Casos edge: IDs inválidos, datos faltantes, resultados vacíos
-Estrategias de mock para Prisma evitan dependencias de BD real
+CoT Process:
+1. "I'm analyzing the original assignment requirements..."
+2. "The first endpoint GET /positions/:id/candidates must return..."
+3. "The second endpoint PUT /candidates/:id/stage must accomplish..."
+4. "The deliverables specified are..."
+5. "Success criteria include..."
 ```
 
-## Prompts Secundarios Utilizados
-
-### Análisis de Errores y Debugging
+### Phase 2: Implementation Discovery
 ```
-El prompt me llevó a analizar errores paso a paso:
-1. Identificar que el mocking no funcionaba correctamente
-2. Refactorizar servicio para usar dependency injection
-3. Crear factory pattern para servicio con cliente Prisma
-4. Actualizar tests para usar la nueva arquitectura
-```
-
-### Validación de Entrada
-```
-Para el controlador, refiné la validación:
-1. Distinguir entre `undefined/null` y string vacío
-2. Validar tipo de datos antes de validar contenido
-3. Mensajes de error específicos para cada caso
-4. Manejo apropiado de códigos de estado HTTP
+CoT Process:
+1. "I'm examining the file structure to locate implementation files..."
+2. "The routing configuration should be in..."
+3. "The controller logic should handle..."
+4. "The service layer should implement..."
+5. "The database queries should perform..."
 ```
 
-## Resultados Obtenidos
-
-### Funcionalidad Implementada
-- ✅ GET `/positions/:id/candidates` - Retorna candidatos con score promedio
-- ✅ PUT `/candidates/:id/stage` - Actualiza etapa de entrevista del candidato
-- ✅ Validación completa de entrada y manejo de errores
-- ✅ Arquitectura limpia con separación de responsabilidades
-
-### Calidad del Código
-- ✅ 100% cobertura de tests para lógica de negocio
-- ✅ Tests unitarios y de integración completos
-- ✅ Zero errores de compilación TypeScript
-- ✅ Arquitectura limpia seguida consistentemente
-
-### Performance
-- ✅ Queries de Prisma optimizadas con joins apropiados
-- ✅ Agregación eficiente para cálculo de scores promedio
-- ✅ Manejo eficiente de transformación de datos
-
-## Lecciones Aprendidas
-
-### Mocking y Dependency Injection
-La implementación inicial falló porque el mocking de Prisma no funcionaba correctamente. La solución fue:
-1. Crear un factory pattern para el servicio
-2. Usar dependency injection para el cliente Prisma
-3. Permitir inyección de mock en tests
-
-### Validación Robusta
-La validación inicial era demasiado simplista. Mejoré con:
-1. Validación específica por tipo de error
-2. Mensajes de error claros y específicos
-3. Códigos de estado HTTP apropiados
-
-### TDD Efectivo
-El enfoque TDD Red-Green-Refactor funcionó bien:
-1. Tests fallidos primero forzaron diseño limpio
-2. Implementación mínima para pasar tests
-3. Refactoring para mejorar arquitectura y performance
-
-## Estado Final del Proyecto
-
-### ✅ Entregables Completados
-- **Branch**: `backend-kanban-endpoints-GG` creado con iniciales "GG"
-- **Pull Request**: #1 creado exitosamente en GitHub
-- **URL PR**: https://github.com/herman-aukera/AI4Devs-BACKEND-RO-1/pull/1
-- **Endpoints**: GET `/positions/:id/candidates` y PUT `/candidates/:id/stage`
-- **Tests**: 18/18 pasando con cobertura excelente
-- **Documentación**: API docs y prompt docs completas
-
-### 🚀 Push Exitoso con GitHub CLI
-```bash
-# Configuración de repositorio default
-gh repo set-default herman-aukera/AI4Devs-BACKEND-RO-1
-
-# Creación de PR (automáticamente hace push)
-gh pr create --title "feat: Add Kanban Endpoints for LTI ATS - GG" --head backend-kanban-endpoints-GG --base main
-
-# Push final de commit de documentación
-git push --set-upstream origin backend-kanban-endpoints-GG --force-with-lease
+### Phase 3: Functional Validation
+```
+CoT Process:
+1. "I'm testing the GET endpoint with a real position ID..."
+2. "The response schema should match..."
+3. "I'm testing the PUT endpoint with a valid stage update..."
+4. "Error scenarios should return proper HTTP codes because..."
+5. "Performance characteristics should meet..."
+```
 ```
 
-### 🎯 Métricas de Calidad Final
-- **Cobertura de Tests**: 88-100% en todos los componentes
-- **Errores de Compilación**: 0 (cero)
-- **Arquitectura**: Clean Architecture implementada correctamente
-- **Performance**: Queries de Prisma optimizadas
-- **Documentación**: Completa con JSDoc y API specs
+---
 
-### ✨ Listo para Producción
-El proyecto está **100% completo** y cumple todos los requisitos:
-- ✅ TDD implementado correctamente
-- ✅ Arquitectura limpia y escalable
-- ✅ Tests comprehensivos y pasando
-- ✅ Documentación completa
-- ✅ Pull Request creado y listo para review
-- ✅ Branch con iniciales "GG" como requerido
+## 🚀 Prompt Final de Validación y PR
 
-**Estado**: 🎉 **COMPLETADO EXITOSAMENTE**
+### Prompt de Trigger para Completar Assignment
+```markdown
+docker is already installed, now you run the best prompt ever to detect all the meaningful errors or incompleteness, when you finish, using gh instead of git, add, commit and make a descriptive pull request to the original repository from the current branch to their main branch (https://github.com/LIDR-academy/AI4Devs-BACKEND-RO-1)
+```
+
+**Contexto de Ejecución:**
+- Role: "Kanban Endpoint Testing Expert for LTI ATS Assignment Validation"
+- Tools: `['read_file', 'run_in_terminal', 'file_search', 'grep_search', 'get_errors', 'semantic_search', 'get_changed_files', 'run_vs_code_task']`
+- Objective: Complete verification and automated PR creation using GitHub CLI
+
+---
+
+## 📋 Resumen de Prompts Utilizados
+
+### 1. **Prompt de Implementación TDD**
+- **Propósito**: Construcción completa del sistema con TDD y Clean Architecture
+- **Enfoque**: Chain-of-Thought reasoning step-by-step
+- **Resultado**: Endpoints funcionales, tests pasando, arquitectura limpia
+
+### 2. **Prompt de Verificación Sistemática**
+- **Propósito**: Validación exhaustiva de todos los requisitos del assignment
+- **Enfoque**: Verificación sistemática con evidencia
+- **Resultado**: Confirmación de funcionalidad, calidad y compliance
+
+### 3. **Prompt de Finalización y PR**
+- **Propósito**: Detectar errores finales y crear pull request automático
+- **Enfoque**: Análisis completo usando herramientas especializadas
+- **Resultado**: Proyecto validado y PR creado en repositorio upstream
+
+**Todos los prompts utilizan Chain-of-Thought reasoning para asegurar implementación y validación sistemática paso a paso.**
